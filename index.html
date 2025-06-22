@@ -1,225 +1,179 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Editor Twibbon Responsif</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 1rem;
-    }
-    #stage-container {
-      position: relative;
-      width: 100%;
-      max-width: 600px;
-      aspect-ratio: 1 / 1;
-      margin: 1rem auto;
-      border: 1px solid #ccc;
-    }
-    #placeholder-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #888;
-      font-size: 18px;
-      pointer-events: none;
-      text-align: center;
-    }
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
-      display: block;
-    }
-    button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
-    }
-    input[type="text"] {
-      margin-top: 10px;
-      padding: 6px;
-      width: 80%;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Editor Twibbon Responsif</title>
+<style>
+body {
+font-family: sans-serif;
+text-align: center;
+padding: 1rem;
+}
+#stage-container {
+width: 100%;
+max-width: 600px;
+aspect-ratio: 1 / 1;
+margin: 1rem auto;
+border: 1px solid #ccc;
+}
+canvas {
+width: 100% !important;
+height: 100% !important;
+display: block;
+}
+button:disabled {
+background-color: #aaa;
+cursor: not-allowed;
+}
+</style>
 </head>
 <body>
 
-  <h2>Editor Twibbon</h2>
-  <p><input type="file" id="imageInput" accept="image/*" /></p>
- <!-- <input type="text" id="textInput" placeholder="Masukkan teks (opsional)" /> -->
-  <p><button id="save" disabled>Unduh Gambar</button></p>
+<h2>Unggah Foto Kamu</h2>
+<input type="file" id="imageInput" accept="image/*" />
+<br/><br/>
+<button id="save" disabled>Unduh Gambar</button>
 
-  <div id="stage-container">
-    <div id="placeholder-overlay">Silakan unggah gambar Anda</div>
-  </div>
+<div id="stage-container"></div>
 
-  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
-  <script>
-    const container = document.getElementById('stage-container');
-    let stage = null;
-    let imageLayer = null;
-    let userImage = null;
-    let placeholderImage = null;
-    let twibbonImage = null;
-    let textNode = null;
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+<script>
+const container = document.getElementById('stage-container');
+let stage = null;
+let imageLayer = null;
+let userImage = null;
+let placeholderImage = null;
+let twibbonImage = null;
 
-    function initStage() {
-      const width = container.clientWidth;
-      const height = width;
+function initStage() {
+const width = container.clientWidth;
+const height = width;
 
-      if (stage) stage.destroy();
+if (stage) stage.destroy();
 
-      stage = new Konva.Stage({
-        container: 'stage-container',
-        width,
-        height,
-      });
+stage = new Konva.Stage({
+container: 'stage-container',
+width,
+height,
+});
 
-      imageLayer = new Konva.Layer();
-      stage.add(imageLayer);
+imageLayer = new Konva.Layer();
+stage.add(imageLayer);
 
-      if (userImage && twibbonImage) {
-        userImage.width(width);
-        userImage.height(height);
-        userImage.position({ x: 0, y: 0 });
+if (userImage && twibbonImage) {
+userImage.width(width);
+userImage.height(height);
+userImage.position({ x: 0, y: 0 });
 
-        placeholderImage.width(width);
-        placeholderImage.height(height);
+placeholderImage.width(width);
+placeholderImage.height(height);
 
-        textNode.fontSize(24);
-        textNode.width(width);
-        textNode.x(0);
-        textNode.y(height - 40);
+imageLayer.removeChildren();
+imageLayer.add(userImage);
+imageLayer.add(placeholderImage);
+imageLayer.draw();
+}
+}
 
-        imageLayer.removeChildren();
-        imageLayer.add(userImage);
-        imageLayer.add(placeholderImage);
-        imageLayer.add(textNode);
-        imageLayer.draw();
-      }
-    }
+window.addEventListener('resize', initStage);
 
-    window.addEventListener('resize', initStage);
+document.getElementById('imageInput').addEventListener('change', function (event) {
+const file = event.target.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = function () {
+const img = new Image();
+img.src = reader.result;
+img.onload = function () {
+const width = container.clientWidth;
 
-    document.getElementById('imageInput').addEventListener('change', function (event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function () {
-          const img = new Image();
-          img.src = reader.result;
-          img.onload = function () {
-            const width = container.clientWidth;
+userImage = new Konva.Image({
+image: img,
+x: 0,
+y: 0,
+width: width,
+height: width,
+draggable: true,
+});
 
-            userImage = new Konva.Image({
-              image: img,
-              x: 0,
-              y: 0,
-              width: width,
-              height: width,
-              draggable: true,
-            });
+twibbonImage = new Image();
+twibbonImage.src = 'https://twibbysnap.netlify.app/twibbon.png';
+twibbonImage.onload = () => {
+placeholderImage = new Konva.Image({
+image: twibbonImage,
+width: width,
+height: width,
+listening: false,
+});
 
-            twibbonImage = new Image();
-            twibbonImage.src = 'frame2.png';
-            twibbonImage.onload = () => {
-              placeholderImage = new Konva.Image({
-                image: twibbonImage,
-                width: width,
-                height: width,
-                listening: false,
-              });
+initStage(); // inisialisasi dan render ulang responsif
+document.getElementById('save').disabled = false;
+};
+};
+};
+reader.readAsDataURL(file);
+}
+});
 
-              textNode = new Konva.Text({
-                text: document.getElementById('textInput').value,
-                fontSize: 24,
-                fill: 'white',
-                x: 0,
-                y: width - 40,
-                width: width,
-                align: 'center',
-                fontStyle: 'bold',
-                shadowColor: 'black',
-                shadowBlur: 2,
-              });
+stage?.on?.('wheel', function (e) {
+e.evt.preventDefault();
+if (!userImage) return;
 
-              document.getElementById('placeholder-overlay').style.display = 'none';
-              initStage();
-              document.getElementById('save').disabled = false;
-            };
-          };
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+const scaleBy = 1.05;
+const oldScale = userImage.scaleX();
+const pointer = stage.getPointerPosition();
+const direction = e.evt.deltaY > 0 ? -1 : 1;
+const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
-    document.getElementById('textInput').addEventListener('input', () => {
-      if (textNode) {
-        textNode.text(document.getElementById('textInput').value);
-        imageLayer.draw();
-      }
-    });
+const mousePointTo = {
+x: (pointer.x - userImage.x()) / oldScale,
+y: (pointer.y - userImage.y()) / oldScale,
+};
 
-    stage?.on?.('wheel', function (e) {
-      e.evt.preventDefault();
-      if (!userImage) return;
+userImage.scale({ x: newScale, y: newScale });
+userImage.position({
+x: pointer.x - mousePointTo.x * newScale,
+y: pointer.y - mousePointTo.y * newScale,
+});
 
-      const scaleBy = 1.05;
-      const oldScale = userImage.scaleX();
-      const pointer = stage.getPointerPosition();
-      const direction = e.evt.deltaY > 0 ? -1 : 1;
-      const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+imageLayer.batchDraw();
+});
 
-      const mousePointTo = {
-        x: (pointer.x - userImage.x()) / oldScale,
-        y: (pointer.y - userImage.y()) / oldScale,
-      };
+let lastDist = 0;
+container.addEventListener('touchmove', function (e) {
+if (!userImage || e.touches.length !== 2) return;
 
-      userImage.scale({ x: newScale, y: newScale });
-      userImage.position({
-        x: pointer.x - mousePointTo.x * newScale,
-        y: pointer.y - mousePointTo.y * newScale,
-      });
+const [t1, t2] = e.touches;
+const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
 
-      imageLayer.batchDraw();
-    });
+if (!lastDist) {
+lastDist = dist;
+return;
+}
 
-    let lastDist = 0;
-    container.addEventListener('touchmove', function (e) {
-      if (!userImage || e.touches.length !== 2) return;
+const scale = userImage.scaleX() * (dist / lastDist);
+userImage.scale({ x: scale, y: scale });
+lastDist = dist;
 
-      const [t1, t2] = e.touches;
-      const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+imageLayer.batchDraw();
+});
+container.addEventListener('touchend', () => {
+lastDist = 0;
+});
 
-      if (!lastDist) {
-        lastDist = dist;
-        return;
-      }
+document.getElementById('save').addEventListener('click', function () {
+const dataURL = stage.toDataURL({ pixelRatio: 3 });
+const link = document.createElement('a');
+link.download = 'twibbon-kamu.png';
+link.href = dataURL;
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+});
 
-      const scale = userImage.scaleX() * (dist / lastDist);
-      userImage.scale({ x: scale, y: scale });
-      lastDist = dist;
-
-      imageLayer.batchDraw();
-    });
-    container.addEventListener('touchend', () => {
-      lastDist = 0;
-    });
-
-    document.getElementById('save').addEventListener('click', function () {
-      const dataURL = stage.toDataURL({ pixelRatio: 3 });
-      const link = document.createElement('a');
-      link.download = 'twibbon-kamu.png';
-      link.href = dataURL;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
-
-    initStage();
-  </script>
+// Inisialisasi pertama
+initStage();
+</script>
 </body>
 </html>
