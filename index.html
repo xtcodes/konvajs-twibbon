@@ -31,9 +31,8 @@ cursor: not-allowed;
 <body>
 
 <h2>Unggah Foto Kamu</h2>
-<input type="file" id="imageInput" style="display:none" accept="image/*" />
+<input type="file" id="imageInput" accept="image/*" />
 <button id="save" disabled>Unduh Gambar</button>
-<button id="imageInput">Upload File</button>
 <div id="stage-container"></div>
 
 <script src="https://unpkg.com/konva@9/konva.min.js"></script>
@@ -174,8 +173,6 @@ document.body.removeChild(link);
 // Inisialisasi pertama
 initStage();
 </script>
-<script>
-document.querySelector('button').addEventListener('click', () => { document.querySelector('input[type="file"]').click(); });
-</script>
+
 </body>
 </html>
