@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Editor Twibbon Responsif</title>
+<style>
+body {
+font-family: sans-serif;
+text-align: center;
+padding: 1rem;
+}
+#stage-container {
+width: 100%;
+max-width: 600px;
+aspect-ratio: 1 / 1;
+margin: 1rem auto;
+border: 1px solid #ccc;
+}
+canvas {
+width: 100% !important;
+height: 100% !important;
+display: block;
+}
+button:disabled {
+background-color: #aaa;
+cursor: not-allowed;
+}
+</style>
+</head>
+<body>
+
+<h2>Unggah Foto Kamu</h2>
+<input type="file" id="imageInput" accept="image/*" />
+<br/><br/>
+<button id="save" disabled>Unduh Gambar</button>
+
+<div id="stage-container"></div>
+
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+<script>
+const container = document.getElementById('stage-container');
+let stage = null;
+let imageLayer = null;
+let userImage = null;
+let placeholderImage = null;
+let twibbonImage = null;
+
+function initStage() {
+const width = container.clientWidth;
+const height = width;
+
+if (stage) stage.destroy();
+
+stage = new Konva.Stage({
+container: 'stage-container',
+width,
+height,
+});
+
+imageLayer = new Konva.Layer();
+stage.add(imageLayer);
+
+if (userImage && twibbonImage) {
+userImage.width(width);
+userImage.height(height);
+userImage.position({ x: 0, y: 0 });
+
+placeholderImage.width(width);
+placeholderImage.height(height);
+
+imageLayer.removeChildren();
+imageLayer.add(userImage);
+imageLayer.add(placeholderImage);
+imageLayer.draw();
+}
+}
+
+window.addEventListener('resize', initStage);
+
+document.getElementById('imageInput').addEventListener('change', function (event) {
+const file = event.target.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = function () {
+const img = new Image();
+img.src = reader.result;
+img.onload = function () {
+const width = container.clientWidth;
+
+userImage = new Konva.Image({
+image: img,
+x: 0,
+y: 0,
+width: width,
+height: width,
+draggable: true,
+});
+
+twibbonImage = new Image();
+twibbonImage.src = 'https://twibbysnap.netlify.app/twibbon.png';
+twibbonImage.onload = () => {
+placeholderImage = new Konva.Image({
+image: twibbonImage,
+width: width,
+height: width,
+listening: false,
+});
+
+initStage(); // inisialisasi dan render ulang responsif
+document.getElementById('save').disabled = false;
+};
+};
+};
+reader.readAsDataURL(file);
+}
+});
+
+stage?.on?.('wheel', function (e) {
+e.evt.preventDefault();
+if (!userImage) return;
+
+const scaleBy = 1.05;
+const oldScale = userImage.scaleX();
+const pointer = stage.getPointerPosition();
+const direction = e.evt.deltaY > 0 ? -1 : 1;
+const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+const mousePointTo = {
+x: (pointer.x - userImage.x()) / oldScale,
+y: (pointer.y - userImage.y()) / oldScale,
+};
+
+userImage.scale({ x: newScale, y: newScale });
+userImage.position({
+x: pointer.x - mousePointTo.x * newScale,
+y: pointer.y - mousePointTo.y * newScale,
+});
+
+imageLayer.batchDraw();
+});
+
+let lastDist = 0;
+container.addEventListener('touchmove', function (e) {
+if (!userImage || e.touches.length !== 2) return;
+
+const [t1, t2] = e.touches;
+const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+
+if (!lastDist) {
+lastDist = dist;
+return;
+}
+
+const scale = userImage.scaleX() * (dist / lastDist);
+userImage.scale({ x: scale, y: scale });
+lastDist = dist;
+
+imageLayer.batchDraw();
+});
+container.addEventListener('touchend', () => {
+lastDist = 0;
+});
+
+document.getElementById('save').addEventListener('click', function () {
+const dataURL = stage.toDataURL({ pixelRatio: 3 });
+const link = document.createElement('a');
+link.download = 'twibbon-kamu.png';
+link.href = dataURL;
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+});
+
+// Inisialisasi pertama
+initStage();
+</script>
+</body>
+</html>
