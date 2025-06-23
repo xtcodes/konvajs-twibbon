@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Teks Generator Font</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generator Teks Fancy Lengkap</title>
   <style>
     body {
       font-family: sans-serif;
+      background: #f4f4f4;
       padding: 20px;
-      background: #f2f2f2;
     }
     h1 {
       text-align: center;
@@ -21,7 +21,7 @@
       margin-bottom: 20px;
     }
     .result {
-      background: white;
+      background: #fff;
       padding: 10px 15px;
       border-radius: 8px;
       margin: 10px 0;
@@ -32,8 +32,10 @@
     .font-text {
       font-size: 1.1em;
       word-break: break-word;
+      flex: 1;
     }
     button.copy {
+      margin-left: 10px;
       background: #007bff;
       color: white;
       border: none;
@@ -47,50 +49,62 @@
   </style>
 </head>
 <body>
-  <h1>Generator Teks Berbagai Font</h1>
+  <h1>Generator Teks Fancy Lengkap</h1>
   <input type="text" id="inputText" placeholder="Ketik teks di sini..." oninput="generateFonts()" />
-
   <div id="output"></div>
 
   <script>
-    const fonts = [
-      { name: "Tebal", transform: str => str.replace(/./g, c => boldMap[c] || c) },
-      { name: "Miring", transform: str => str.replace(/./g, c => italicMap[c] || c) },
-      { name: "Fancy", transform: str => str.replace(/./g, c => fancyMap[c] || c) },
-      { name: "Monospace", transform: str => str.replace(/./g, c => monospaceMap[c] || c) },
-      { name: "Huruf Kecil Semua", transform: str => str.toLowerCase() },
-      { name: "Huruf Besar Semua", transform: str => str.toUpperCase() },
-      { name: "𝓒𝓾𝓻𝓼𝓲𝓿𝓮", transform: str => str.replace(/./g, c => cursiveMap[c] || c) },
-    ];
-
-    const boldMap = {}, italicMap = {}, fancyMap = {}, monospaceMap = {}, cursiveMap = {};
-
-    const fillMap = (base, map, offset) => {
-      for (let i = 0; i < 26; i++) {
-        map[String.fromCharCode(97 + i)] = String.fromCharCode(base + i);
-        map[String.fromCharCode(65 + i)] = String.fromCharCode(base - 32 + i);
-      }
+    const smallCaps = {
+      a:'ᴀ', b:'ʙ', c:'ᴄ', d:'ᴅ', e:'ᴇ', f:'ғ', g:'ɢ', h:'ʜ', i:'ɪ',
+      j:'ᴊ', k:'ᴋ', l:'ʟ', m:'ᴍ', n:'ɴ', o:'ᴏ', p:'ᴘ', q:'ǫ', r:'ʀ',
+      s:'s', t:'ᴛ', u:'ᴜ', v:'ᴠ', w:'ᴡ', x:'x', y:'ʏ', z:'ᴢ'
     };
 
-    // Fill maps
-    fillMap(0x1d400, boldMap, 0);
-    fillMap(0x1d434, italicMap, 0);
-    fillMap(0x1d49c, cursiveMap, 0);
-    fillMap(0xff41, monospaceMap, 0);
-    fillMap(0x1d56c, fancyMap, 0);
+    const flip = {
+      a:'ɐ', b:'q', c:'ɔ', d:'p', e:'ǝ', f:'ɟ', g:'ƃ', h:'ɥ', i:'ᴉ',
+      j:'ɾ', k:'ʞ', l:'l', m:'ɯ', n:'u', o:'o', p:'d', q:'b', r:'ɹ',
+      s:'s', t:'ʇ', u:'n', v:'ʌ', w:'ʍ', x:'x', y:'ʎ', z:'z',
+      A:'∀', B:'𐐒', C:'Ɔ', D:'p', E:'Ǝ', F:'Ⅎ', G:'פ', H:'H', I:'I',
+      J:'ſ', K:'ʞ', L:'˥', M:'W', N:'N', O:'O', P:'Ԁ', Q:'Q', R:'ɹ',
+      S:'S', T:'┴', U:'∩', V:'Λ', W:'M', X:'X', Y:'⅄', Z:'Z',
+      0:'0', 1:'Ɩ', 2:'ᄅ', 3:'Ɛ', 4:'ㄣ', 5:'ϛ', 6:'9', 7:'ㄥ', 8:'8', 9:'6',
+      '.':'˙', ',':'\'', '\'':',', '"':',,', '`':',', '!':'¡', '?':'¿',
+      '[':']', ']':'[', '(':')', ')':'(', '{':'}', '}':'{', '<':'>', '>':'<',
+      '&':'⅋', '_':'‾'
+    };
+
+    function zalgo(text) {
+      const chars = text.split('');
+      return chars.map(c => c + '̷̸̴̹̯̱̤̞̠̖̗̞̠̤'.split('').sort(() => 0.5 - Math.random()).slice(0,3).join('')).join('');
+    }
+
+    const styles = [
+      { name: 'Bold', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d400 + c.charCodeAt(0) - 65 : 0x1d41a + c.charCodeAt(0) - 97)) },
+      { name: 'Italic', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d434 + c.charCodeAt(0) - 65 : 0x1d44e + c.charCodeAt(0) - 97)) },
+      { name: 'Bold Italic', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d468 + c.charCodeAt(0) - 65 : 0x1d482 + c.charCodeAt(0) - 97)) },
+      { name: 'Script', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d49c + c.charCodeAt(0) - 65 : 0x1d4b6 + c.charCodeAt(0) - 97)) },
+      { name: 'Bold Script', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d4d0 + c.charCodeAt(0) - 65 : 0x1d4ea + c.charCodeAt(0) - 97)) },
+      { name: 'Fraktur', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d504 + c.charCodeAt(0) - 65 : 0x1d51e + c.charCodeAt(0) - 97)) },
+      { name: 'Bold Fraktur', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d56c + c.charCodeAt(0) - 65 : 0x1d586 + c.charCodeAt(0) - 97)) },
+      { name: 'Double Struck', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d538 + c.charCodeAt(0) - 65 : 0x1d552 + c.charCodeAt(0) - 97)) },
+      { name: 'Monospace', fn: t => t.replace(/[a-zA-Z]/g, c => String.fromCodePoint(c <= 'Z' ? 0x1d670 + c.charCodeAt(0) - 65 : 0x1d68a + c.charCodeAt(0) - 97)) },
+      { name: 'Small Caps', fn: t => t.split('').map(c => smallCaps[c.toLowerCase()] || c).join('') },
+      { name: 'Upside Down', fn: t => t.split('').map(c => flip[c] || c).reverse().join('') },
+      { name: 'Zalgo', fn: t => zalgo(t) }
+    ];
 
     function generateFonts() {
       const input = document.getElementById("inputText").value;
       const output = document.getElementById("output");
       output.innerHTML = '';
 
-      fonts.forEach(font => {
-        const resultText = font.transform(input);
+      styles.forEach(style => {
+        const result = style.fn(input);
         const div = document.createElement("div");
         div.className = "result";
         div.innerHTML = `
-          <div class="font-text">${resultText}</div>
-          <button class="copy" onclick="copyToClipboard('${resultText}')">Salin</button>
+          <div class="font-text">${result}</div>
+          <button class="copy" onclick="copyToClipboard(\`${result.replace(/`/g, '\\`')}\`)">Salin</button>
         `;
         output.appendChild(div);
       });
@@ -98,7 +112,7 @@
 
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
-      alert("Teks disalin: " + text);
+      alert("Teks disalin:\n" + text);
     }
   </script>
 </body>
