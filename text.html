@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teks Generator Font</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .result {
+      background: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .font-text {
+      font-size: 1.1em;
+      word-break: break-word;
+    }
+    button.copy {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button.copy:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generator Teks Berbagai Font</h1>
+  <input type="text" id="inputText" placeholder="Ketik teks di sini..." oninput="generateFonts()" />
+
+  <div id="output"></div>
+
+  <script>
+    const fonts = [
+      { name: "Tebal", transform: str => str.replace(/./g, c => boldMap[c] || c) },
+      { name: "Miring", transform: str => str.replace(/./g, c => italicMap[c] || c) },
+      { name: "Fancy", transform: str => str.replace(/./g, c => fancyMap[c] || c) },
+      { name: "Monospace", transform: str => str.replace(/./g, c => monospaceMap[c] || c) },
+      { name: "Huruf Kecil Semua", transform: str => str.toLowerCase() },
+      { name: "Huruf Besar Semua", transform: str => str.toUpperCase() },
+      { name: "𝓒𝓾𝓻𝓼𝓲𝓿𝓮", transform: str => str.replace(/./g, c => cursiveMap[c] || c) },
+    ];
+
+    const boldMap = {}, italicMap = {}, fancyMap = {}, monospaceMap = {}, cursiveMap = {};
+
+    const fillMap = (base, map, offset) => {
+      for (let i = 0; i < 26; i++) {
+        map[String.fromCharCode(97 + i)] = String.fromCharCode(base + i);
+        map[String.fromCharCode(65 + i)] = String.fromCharCode(base - 32 + i);
+      }
+    };
+
+    // Fill maps
+    fillMap(0x1d400, boldMap, 0);
+    fillMap(0x1d434, italicMap, 0);
+    fillMap(0x1d49c, cursiveMap, 0);
+    fillMap(0xff41, monospaceMap, 0);
+    fillMap(0x1d56c, fancyMap, 0);
+
+    function generateFonts() {
+      const input = document.getElementById("inputText").value;
+      const output = document.getElementById("output");
+      output.innerHTML = '';
+
+      fonts.forEach(font => {
+        const resultText = font.transform(input);
+        const div = document.createElement("div");
+        div.className = "result";
+        div.innerHTML = `
+          <div class="font-text">${resultText}</div>
+          <button class="copy" onclick="copyToClipboard('${resultText}')">Salin</button>
+        `;
+        output.appendChild(div);
+      });
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert("Teks disalin: " + text);
+    }
+  </script>
+</body>
+</html>
