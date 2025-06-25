@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Twibbon Geser & Zoom Halus</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f0f0f0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    #container {
+      max-width: 100%;
+      max-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    pinch-zoom {
+      width: 300px;
+      height: 300px;
+      touch-action: none;
+      display: block;
+    }
+    #twibbon-frame {
+      position: absolute;
+      top: 0; left: 0;
+      width: 300px;
+      height: 300px;
+      pointer-events: none;
+    }
+    #controls {
+      margin-top: 10px;
+      text-align: center;
+    }
+    button {
+      padding: 8px 16px;
+      font-size: 16px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Editor Twibbon Geser & Zoom Halus</h2>
+
+  <div id="container">
+    <pinch-zoom id="zoom-container">
+      <img id="user-image" src="" alt="Unggah gambar" style="width: 100%; height: 100%; object-fit: cover;" />
+    </pinch-zoom>
+    <img id="twibbon-frame" src="frame2.png" alt="Twibbon" />
+  </div>
+
+  <div id="controls">
+    <input type="file" accept="image/*" id="upload" />
+    <br><br>
+    <button onclick="downloadImage()">Unduh Hasil</button>
+  </div>
+
+  <canvas id="final-canvas" style="display: none;"></canvas>
+
+  <script type="module">
+    import PinchZoom from 'https://cdn.skypack.dev/pinch-zoom-element';
+
+    // Handle upload
+    document.getElementById('upload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const img = document.getElementById('user-image');
+        img.src = URL.createObjectURL(file);
+      }
+    });
+
+    window.downloadImage = function() {
+      const canvas = document.getElementById('final-canvas');
+      const ctx = canvas.getContext('2d');
+      const container = document.getElementById('zoom-container');
+      const twibbon = document.getElementById('twibbon-frame');
+
+      // Set canvas size
+      canvas.width = 300;
+      canvas.height = 300;
+
+      // Draw uploaded image with transform
+      const img = document.getElementById('user-image');
+      const style = getComputedStyle(img);
+      const scale = container._scale || 1;
+      const offsetX = container._position?.x || 0;
+      const offsetY = container._position?.y || 0;
+
+      // Rough estimation (can be improved)
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, 300, 300);
+      ctx.restore();
+
+      // Draw twibbon frame
+      const frame = new Image();
+      frame.crossOrigin = "anonymous";
+      frame.onload = function () {
+        ctx.drawImage(frame, 0, 0, 300, 300);
+        const link = document.createElement('a');
+        link.download = 'twibbon.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      };
+      frame.src = twibbon.src;
+    };
+  </script>
+</body>
+</html>
