@@ -108,7 +108,7 @@
     <pinch-zoom id="zoom-container">
       <img id="user-image" src="" alt="Unggah gambar" />
     </pinch-zoom>
-    <img id="twibbon-frame" src="frame2.png" alt="Twibbon" />
+    <img id="twibbon-frame" src="https://i.imgur.com/your-twibbon-frame.png" alt="Twibbon" />
   </div>
 
   <div id="controls">
@@ -122,7 +122,7 @@
   <div id="tutorialModal">
     <div id="tutorialBox">
       <p>🖐 Gunakan satu jari untuk menggeser gambar dan dua jari untuk memperbesar atau memperkecil (zoom). Jika sudah pas, tekan tombol "Unduh Hasil".</p>
-      <button onclick="closeModal()">OK</button>
+      <button id="closeModalBtn">OK</button>
     </div>
   </div>
 
@@ -136,6 +136,12 @@
     const userImage = document.getElementById('user-image');
     const twibbonFrame = document.getElementById('twibbon-frame');
     const tutorialModal = document.getElementById('tutorialModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Tutup modal saat tombol OK diklik
+    closeModalBtn.addEventListener('click', () => {
+      tutorialModal.style.display = 'none';
+    });
 
     uploadInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -151,10 +157,6 @@
         tutorialModal.style.display = 'flex';
       }
     });
-
-    function closeModal() {
-      tutorialModal.style.display = 'none';
-    }
 
     twibbonInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
