@@ -79,7 +79,8 @@
   </div>
 
   <div id="controls">
-    <input type="file" accept="image/*" id="upload" />
+    <button id="upload" onclick="$('#upload').click()">Upload File</button>
+    <input type="file" style="display: none;" accept="image/*" id="upload" />
     <br><br>
     <button onclick="downloadImage()">Unduh Hasil</button>
   </div>
