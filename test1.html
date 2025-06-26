@@ -98,6 +98,27 @@
     #tutorialBox button:hover {
       background: #218838;
     }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 9999;
+    }
+    #toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
   </style>
 </head>
 <body>
@@ -126,6 +147,9 @@
     </div>
   </div>
 
+  <!-- Toast Notifikasi -->
+  <div id="toast">Pesan</div>
+
   <canvas id="final-canvas" style="display: none;"></canvas>
 
   <script type="module">
@@ -137,11 +161,19 @@
     const twibbonFrame = document.getElementById('twibbon-frame');
     const tutorialModal = document.getElementById('tutorialModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
+    const toast = document.getElementById('toast');
 
-    // Tutup modal saat tombol OK diklik
     closeModalBtn.addEventListener('click', () => {
       tutorialModal.style.display = 'none';
     });
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
 
     uploadInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -153,7 +185,6 @@
         twibbonInput.style.display = 'inline-block';
         twibbonInput.title = "Ganti Twibbon";
 
-        // Tampilkan modal tutorial
         tutorialModal.style.display = 'flex';
       }
     });
@@ -185,20 +216,20 @@
             if (hasTransparency) {
               twibbonFrame.src = event.target.result;
             } else {
-              alert("Twibbon harus berupa PNG transparan!");
+              showToast("Twibbon harus berupa PNG transparan!");
             }
           };
           img.src = event.target.result;
         };
         reader.readAsDataURL(file);
       } else {
-        alert("Hanya mendukung file PNG!");
+        showToast("Hanya mendukung file PNG!");
       }
     });
 
     window.downloadImage = function() {
       if (!userImage.dataset.uploaded) {
-        alert("Unggah gambar terlebih dahulu!");
+        showToast("Unggah gambar terlebih dahulu!");
         return;
       }
 
