@@ -57,10 +57,6 @@
     input[type="file"] {
       background: #444;
     }
-    
-    input[type="file"] {
-      display: none;
-    }
     button:hover, input[type="file"]:hover {
       background: #0056b3;
     }
@@ -137,7 +133,6 @@
   </div>
 
   <div id="controls">
-    <button>Upload Foto</button>
     <input type="file" accept="image/*" id="upload" />
     <input type="file" accept="image/png" id="twibbonInput" style="display:none;" />
     <button onclick="downloadImage()">Unduh Hasil</button>
@@ -267,8 +262,5 @@
     };
   </script>
 
-  <script>
-    document.querySelector('button').addEventListener('click', () => { document.querySelector('input[type="file"]').click(); });
-  </script>
 </body>
 </html>
