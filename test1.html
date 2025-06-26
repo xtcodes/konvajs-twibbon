@@ -46,43 +46,33 @@
       border: none;
       background: #007bff;
       color: white;
-      display: inline-block;
       border-radius: 8px;
       cursor: pointer;
-      text-decoration: none;
     }
     button:hover {
       background: #0056b3;
     }
-    label {
-      padding: 8px 16px;
-      font-size: 16px;
-      border: none;
-      background: #ffffff;
-      color: #333;
-      display: inline-block;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-     }
-    label:hover {
-      background: #ddd;
-    }
-    input[type="file"] {
-    display: none;
-    }
-    .alert-overlay {
+
+    /* Toast Notification */
+    #toast {
       position: fixed;
-      top: 50%;
+      bottom: 30px;
       left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 0, 0, 0.9);
-      color: #fff;
-      padding: 20px 30px;
-      border-radius: 10px;
-      font-size: 18px;
+      transform: translateX(-50%);
+      background-color: #ff3b3b;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
       z-index: 9999;
-      display: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      pointer-events: auto;
     }
   </style>
 </head>
@@ -98,42 +88,41 @@
   </div>
 
   <div id="controls">
-    <label class="file">Upload File
     <input type="file" accept="image/*" id="upload" />
-    </label>
+    <br><br>
     <button onclick="downloadImage()">Unduh Hasil</button>
   </div>
 
-  <div id="alert" class="alert-overlay">Unggah gambar terlebih dahulu!</div>
+  <!-- Toast notification -->
+  <div id="toast">Unggah gambar terlebih dahulu!</div>
 
   <canvas id="final-canvas" style="display: none;"></canvas>
 
   <script type="module">
     import PinchZoom from 'https://cdn.skypack.dev/pinch-zoom-element';
 
-    // Handle upload
     document.getElementById('upload').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
         const img = document.getElementById('user-image');
         img.src = URL.createObjectURL(file);
-        img.dataset.uploaded = "true"; // tandai bahwa gambar sudah diunggah
+        img.dataset.uploaded = "true";
       }
     });
 
-    function showAlert(msg) {
-      const alertBox = document.getElementById('alert');
-      alertBox.textContent = msg;
-      alertBox.style.display = 'block';
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
       setTimeout(() => {
-        alertBox.style.display = 'none';
-      }, 2000);
+        toast.classList.remove('show');
+      }, 2500);
     }
 
     window.downloadImage = function() {
       const img = document.getElementById('user-image');
       if (!img.dataset.uploaded) {
-        showAlert('Unggah gambar terlebih dahulu!');
+        showToast("Unggah gambar terlebih dahulu!");
         return;
       }
 
