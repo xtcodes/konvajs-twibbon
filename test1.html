@@ -44,7 +44,7 @@
       margin-top: 10px;
       text-align: center;
     }
-    button, input[type="file"] {
+    button, label {
       margin: 5px;
       padding: 8px 16px;
       font-size: 16px;
@@ -54,10 +54,13 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    input[type="file"] {
+    label {
       background: #444;
     }
-    button:hover, input[type="file"]:hover {
+    input[type="file"] {
+    display: none;
+    }
+    button:hover, label:hover {
       background: #0056b3;
     }
 
@@ -133,9 +136,12 @@
   </div>
 
   <div id="controls">
+    <label>Upload Foto
     <input type="file" accept="image/*" id="upload" />
+    </label>
+    <label>Upload Twibbon
     <input type="file" accept="image/png" id="twibbonInput" style="display:none;" />
-    <br>
+    </label>
     <button onclick="downloadImage()">Unduh Hasil</button>
   </div>
 
