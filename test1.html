@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Twibbon Geser & Zoom Halus</title>
+  <title>Editor Twibbon Geser & Zoom</title>
   <style>
     body {
       margin: 0;
@@ -40,7 +40,8 @@
       margin-top: 10px;
       text-align: center;
     }
-    button {
+    button, input[type="file"] {
+      margin: 5px;
       padding: 8px 16px;
       font-size: 16px;
       border: none;
@@ -49,11 +50,13 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    button:hover {
+    input[type="file"] {
+      background: #444;
+    }
+    button:hover, input[type="file"]:hover {
       background: #0056b3;
     }
 
-    /* Toast Notification */
     #toast {
       position: fixed;
       bottom: 30px;
@@ -61,7 +64,7 @@
       transform: translateX(-50%);
       background-color: #ff3b3b;
       color: white;
-      padding: 8px 16px;
+      padding: 12px 20px;
       border-radius: 20px;
       font-size: 16px;
       opacity: 0;
@@ -89,29 +92,74 @@
 
   <div id="controls">
     <input type="file" accept="image/*" id="upload" />
-    <br><br>
+    <input type="file" accept="image/png" id="twibbonInput" style="display:none;" />
+    <br>
     <button onclick="downloadImage()">Unduh Hasil</button>
   </div>
 
-  <!-- Toast notification -->
-  <div id="toast">Unggah gambar terlebih dahulu!</div>
-
+  <div id="toast">Pesan</div>
   <canvas id="final-canvas" style="display: none;"></canvas>
 
   <script type="module">
     import PinchZoom from 'https://cdn.skypack.dev/pinch-zoom-element';
 
-    document.getElementById('upload').addEventListener('change', function(e) {
+    const uploadInput = document.getElementById('upload');
+    const twibbonInput = document.getElementById('twibbonInput');
+    const userImage = document.getElementById('user-image');
+    const twibbonFrame = document.getElementById('twibbon-frame');
+    const toast = document.getElementById('toast');
+
+    uploadInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (file) {
-        const img = document.getElementById('user-image');
-        img.src = URL.createObjectURL(file);
-        img.dataset.uploaded = "true";
+        userImage.src = URL.createObjectURL(file);
+        userImage.dataset.uploaded = "true";
+
+        uploadInput.style.display = 'none';
+        twibbonInput.style.display = 'inline-block';
+        twibbonInput.title = "Ganti Twibbon";
+      }
+    });
+
+    twibbonInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file && file.type === 'image/png') {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const img = new Image();
+          img.onload = function() {
+            const testCanvas = document.createElement('canvas');
+            testCanvas.width = img.width;
+            testCanvas.height = img.height;
+            const ctx = testCanvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, testCanvas.width, testCanvas.height);
+            const pixels = imageData.data;
+            let hasTransparency = false;
+
+            for (let i = 3; i < pixels.length; i += 4) {
+              if (pixels[i] < 255) {
+                hasTransparency = true;
+                break;
+              }
+            }
+
+            if (hasTransparency) {
+              twibbonFrame.src = event.target.result;
+            } else {
+              showToast("Twibbon harus berupa PNG transparan!");
+            }
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        showToast("Hanya mendukung file PNG!");
       }
     });
 
     function showToast(message) {
-      const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.classList.add('show');
       setTimeout(() => {
@@ -120,8 +168,7 @@
     }
 
     window.downloadImage = function() {
-      const img = document.getElementById('user-image');
-      if (!img.dataset.uploaded) {
+      if (!userImage.dataset.uploaded) {
         showToast("Unggah gambar terlebih dahulu!");
         return;
       }
@@ -129,7 +176,6 @@
       const canvas = document.getElementById('final-canvas');
       const ctx = canvas.getContext('2d');
       const container = document.getElementById('zoom-container');
-      const twibbon = document.getElementById('twibbon-frame');
 
       canvas.width = 300;
       canvas.height = 300;
@@ -141,7 +187,7 @@
       ctx.save();
       ctx.translate(offsetX, offsetY);
       ctx.scale(scale, scale);
-      ctx.drawImage(img, 0, 0, 300, 300);
+      ctx.drawImage(userImage, 0, 0, 300, 300);
       ctx.restore();
 
       const frame = new Image();
@@ -153,7 +199,7 @@
         link.href = canvas.toDataURL();
         link.click();
       };
-      frame.src = twibbon.src;
+      frame.src = twibbonFrame.src;
     };
   </script>
 </body>
