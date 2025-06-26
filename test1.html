@@ -61,25 +61,42 @@
       background: #0056b3;
     }
 
-    #toast {
+    /* Modal */
+    #tutorialModal {
       position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #333;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 20px;
-      font-size: 16px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 9999;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
     }
-
-    #toast.show {
-      opacity: 1;
-      pointer-events: auto;
+    #tutorialBox {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      max-width: 90%;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #tutorialBox p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    #tutorialBox button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #tutorialBox button:hover {
+      background: #218838;
     }
   </style>
 </head>
@@ -101,7 +118,14 @@
     <button onclick="downloadImage()">Unduh Hasil</button>
   </div>
 
-  <div id="toast">Pesan</div>
+  <!-- Modal Tutorial -->
+  <div id="tutorialModal">
+    <div id="tutorialBox">
+      <p>🖐 Gunakan satu jari untuk menggeser gambar dan dua jari untuk memperbesar atau memperkecil (zoom). Jika sudah pas, tekan tombol "Unduh Hasil".</p>
+      <button onclick="closeModal()">OK</button>
+    </div>
+  </div>
+
   <canvas id="final-canvas" style="display: none;"></canvas>
 
   <script type="module">
@@ -111,7 +135,7 @@
     const twibbonInput = document.getElementById('twibbonInput');
     const userImage = document.getElementById('user-image');
     const twibbonFrame = document.getElementById('twibbon-frame');
-    const toast = document.getElementById('toast');
+    const tutorialModal = document.getElementById('tutorialModal');
 
     uploadInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -123,10 +147,14 @@
         twibbonInput.style.display = 'inline-block';
         twibbonInput.title = "Ganti Twibbon";
 
-        // ✅ Tampilkan tutorial toast
-        showToast("Geser dengan satu jari, zoom dengan dua jari. Klik 'Unduh Hasil' jika sudah pas.");
+        // Tampilkan modal tutorial
+        tutorialModal.style.display = 'flex';
       }
     });
+
+    function closeModal() {
+      tutorialModal.style.display = 'none';
+    }
 
     twibbonInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -155,28 +183,20 @@
             if (hasTransparency) {
               twibbonFrame.src = event.target.result;
             } else {
-              showToast("Twibbon harus berupa PNG transparan!");
+              alert("Twibbon harus berupa PNG transparan!");
             }
           };
           img.src = event.target.result;
         };
         reader.readAsDataURL(file);
       } else {
-        showToast("Hanya mendukung file PNG!");
+        alert("Hanya mendukung file PNG!");
       }
     });
 
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
-    }
-
     window.downloadImage = function() {
       if (!userImage.dataset.uploaded) {
-        showToast("Unggah gambar terlebih dahulu!");
+        alert("Unggah gambar terlebih dahulu!");
         return;
       }
 
