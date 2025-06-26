@@ -23,8 +23,8 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     pinch-zoom {
-      width: 300px;
-      height: 300px;
+      width: 500px;
+      height: 500px;
       touch-action: none;
       display: block;
     }
@@ -36,8 +36,8 @@
     #twibbon-frame {
       position: absolute;
       top: 0; left: 0;
-      width: 300px;
-      height: 300px;
+      width: 500px;
+      height: 500px;
       pointer-events: none;
     }
     #controls {
@@ -247,8 +247,8 @@
       const ctx = canvas.getContext('2d');
       const container = document.getElementById('zoom-container');
 
-      canvas.width = 300;
-      canvas.height = 300;
+      canvas.width = 500;
+      canvas.height = 500;
 
       const scale = container._scale || 1;
       const offsetX = container._position?.x || 0;
@@ -257,13 +257,13 @@
       ctx.save();
       ctx.translate(offsetX, offsetY);
       ctx.scale(scale, scale);
-      ctx.drawImage(userImage, 0, 0, 300, 300);
+      ctx.drawImage(userImage, 0, 0, 500, 500);
       ctx.restore();
 
       const frame = new Image();
       frame.crossOrigin = "anonymous";
       frame.onload = function () {
-        ctx.drawImage(frame, 0, 0, 300, 300);
+        ctx.drawImage(frame, 0, 0, 500, 500);
         const link = document.createElement('a');
         link.download = 'twibbon.png';
         link.href = canvas.toDataURL();
