@@ -20,7 +20,6 @@
       width: 300px;
       height: 300px;
       background: white;
-      border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     }
@@ -239,15 +238,24 @@
         new Promise(res => frame.onload = res)
       ]);
 
-      const scaleRatio = 768 / 300;
+      const displaySize = 300;
+      const outputSize = 768;
+      const scaleRatio = outputSize / displaySize;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-      ctx.translate(transform.translate.x * scaleRatio, transform.translate.y * scaleRatio);
-      ctx.scale(transform.scale * scaleRatio, transform.scale * scaleRatio);
-      ctx.drawImage(img, 0, 0, 300, 300);
-      ctx.restore();
-      ctx.drawImage(frame, 0, 0, 768, 768);
+      const naturalW = img.naturalWidth;
+      const naturalH = img.naturalHeight;
+
+      const visibleW = displaySize / transform.scale;
+      const visibleH = displaySize / transform.scale;
+
+      const cropX = (0 - transform.translate.x) / displaySize * naturalW;
+      const cropY = (0 - transform.translate.y) / displaySize * naturalH;
+      const cropW = visibleW / displaySize * naturalW;
+      const cropH = visibleH / displaySize * naturalH;
+
+      ctx.clearRect(0, 0, outputSize, outputSize);
+      ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, outputSize, outputSize);
+      ctx.drawImage(frame, 0, 0, outputSize, outputSize);
 
       const a = document.createElement("a");
       a.download = "twibbon.png";
