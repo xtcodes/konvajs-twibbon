@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Editor Twibbon Geser & Zoom Halus</title>
+  <title>Editor Twibbon Presisi</title>
+
+  <!-- CDN pinch-zoom -->
+  <script type="module" src="https://cdn.skypack.dev/pinch-zoom-element"></script>
+  <!-- CDN html2canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -81,6 +87,7 @@
       transition: opacity 0.3s ease;
       z-index: 9999;
     }
+
     #toast.show {
       opacity: 1;
       pointer-events: auto;
@@ -97,6 +104,7 @@
       justify-content: center;
       z-index: 1000;
     }
+
     #tutorialBox {
       background: white;
       padding: 20px;
@@ -104,6 +112,7 @@
       max-width: 90%;
       text-align: center;
     }
+
     #tutorialBox button {
       background: #28a745;
       color: white;
@@ -117,13 +126,13 @@
 </head>
 <body>
 
-  <h2>Editor Twibbon Geser & Zoom Halus</h2>
+  <h2>Editor Twibbon Geser & Zoom</h2>
 
   <div id="container">
     <pinch-zoom id="zoom">
-      <img id="user-image" src="" alt="" />
+      <img id="user-image" src="" alt="Foto kamu" />
     </pinch-zoom>
-    <img id="twibbon-frame" src="frame2.png" alt="Twibbon"/>
+    <img id="twibbon-frame" src="frame2.png" alt="Twibbon" />
   </div>
 
   <div id="controls">
@@ -146,19 +155,13 @@
 
   <div id="toast">Pesan</div>
 
-  <canvas id="canvas" width="768" height="768" style="display:none;"></canvas>
-
-  <script type="module">
-    import PinchZoom from 'https://cdn.skypack.dev/pinch-zoom-element';
-
+  <script>
     const uploadBtn = document.getElementById('uploadBtn');
     const twibbonBtn = document.getElementById('twibbonBtn');
     const uploadInput = document.getElementById('upload');
     const twibbonInput = document.getElementById('twibbonInput');
     const userImage = document.getElementById('user-image');
     const twibbonFrame = document.getElementById('twibbon-frame');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
     const toast = document.getElementById('toast');
     const tutorialModal = document.getElementById('tutorialModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -218,51 +221,27 @@
       }
     });
 
-    window.downloadImage = async () => {
+    async function downloadImage() {
+      const container = document.getElementById('container');
+
       if (!userImage.dataset.loaded) {
         showToast("Unggah gambar dulu!");
         return;
       }
 
-      const zoom = document.getElementById("zoom");
-      const transform = zoom._transform;
+      const canvas = await html2canvas(container, {
+        backgroundColor: null,
+        width: 300,
+        height: 300,
+        scale: 768 / 300,
+        useCORS: true
+      });
 
-      const img = new Image();
-      img.src = userImage.src;
-
-      const frame = new Image();
-      frame.crossOrigin = "anonymous";
-      frame.src = twibbonFrame.src;
-
-      await Promise.all([
-        new Promise(res => img.onload = res),
-        new Promise(res => frame.onload = res)
-      ]);
-
-      const displaySize = 300;
-      const outputSize = 768;
-      const scaleRatio = outputSize / displaySize;
-
-      const naturalW = img.naturalWidth;
-      const naturalH = img.naturalHeight;
-
-      const visibleW = displaySize / transform.scale;
-      const visibleH = displaySize / transform.scale;
-
-      const cropX = (0 - transform.translate.x) / displaySize * naturalW;
-      const cropY = (0 - transform.translate.y) / displaySize * naturalH;
-      const cropW = visibleW / displaySize * naturalW;
-      const cropH = visibleH / displaySize * naturalH;
-
-      ctx.clearRect(0, 0, outputSize, outputSize);
-      ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, outputSize, outputSize);
-      ctx.drawImage(frame, 0, 0, outputSize, outputSize);
-
-      const a = document.createElement("a");
-      a.download = "twibbon.png";
-      a.href = canvas.toDataURL("image/png");
-      a.click();
-    };
+      const link = document.createElement("a");
+      link.download = "twibbon.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
   </script>
 </body>
 </html>
